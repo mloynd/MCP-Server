@@ -9,6 +9,12 @@ if not uri:
     print("❌ ERROR: MONGO_URI not set in environment", file=sys.stderr)
     raise RuntimeError("Missing MONGO_URI")
 
+uri = os.getenv("MONGO_URI")
+client = MongoClient(uri, server_api=ServerApi('1'))
+client.admin.command("ping")  # Force test
+db = client["MSE1"]
+
+
 try:
     client = MongoClient(uri, server_api=ServerApi('1'))
     # ✅ Ping to confirm working connection
