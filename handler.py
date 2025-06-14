@@ -4,20 +4,18 @@ from pymongo.server_api import ServerApi
 import os
 import sys
 
+# ✅ Define your FastAPI app FIRST
+app = FastAPI()
+
+# ✅ Load and validate MONGO_URI from environment
 uri = os.getenv("MONGO_URI")
 if not uri:
     print("❌ ERROR: MONGO_URI not set in environment", file=sys.stderr)
     raise RuntimeError("Missing MONGO_URI")
 
-uri = os.getenv("MONGO_URI")
-client = MongoClient(uri, server_api=ServerApi('1'))
-client.admin.command("ping")  # Force test
-db = client["MSE1"]
-
-
+# ✅ Connect to MongoDB with SRV support and ping test
 try:
     client = MongoClient(uri, server_api=ServerApi('1'))
-    # ✅ Ping to confirm working connection
     client.admin.command('ping')
     print("✅ Pinged your deployment. Connected to MongoDB!")
     db = client["MSE1"]
