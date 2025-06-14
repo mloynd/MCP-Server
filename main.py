@@ -2,21 +2,22 @@
 
 from fastapi import FastAPI, Request
 from pymongo import MongoClient
-from handler import handle_schema_memory, query_schemas
+from handler import handle_crud, handle_schema_memory, query_schemas
 import os
 
 app = FastAPI()
-
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["MSE"]
 schemas = db["schemas"]
 
 @app.post("/mcp")
-async def mcp_endpoint(request: Request):
+async def mcp_entry(request: Request):
     payload = await request.json()
     operation = payload.get("operation")
 
-    if operation == "schema_memory":
+    if operation == "crud":
+        return handle_crud(payload, db)
+    elif operation == "schema_memory":
         return handle_schema_memory(payload, db)
 
     return {"error": "unsupported operation"}
