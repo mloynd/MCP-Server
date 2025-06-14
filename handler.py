@@ -1,20 +1,20 @@
 from fastapi import FastAPI, Request
-from pymongo import MongoClient
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 import os
 import sys
 
-app = FastAPI()
-
-# ✅ Secure MongoDB connection with validation
 uri = os.getenv("MONGO_URI")
 if not uri:
     print("❌ ERROR: MONGO_URI not set in environment", file=sys.stderr)
     raise RuntimeError("Missing MONGO_URI")
 
 try:
-    client = MongoClient(uri)
+    client = MongoClient(uri, server_api=ServerApi('1'))
+    # ✅ Ping to confirm working connection
+    client.admin.command('ping')
+    print("✅ Pinged your deployment. Connected to MongoDB!")
     db = client["MSE1"]
-    print("✅ MongoDB connection initialized.")
 except Exception as e:
     print("❌ MongoDB connection failed:", e, file=sys.stderr)
     raise e
