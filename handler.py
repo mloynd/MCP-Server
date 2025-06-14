@@ -12,12 +12,21 @@ async def root():
 
 @app.post("/mcp")
 async def handle_mcp(request: Request):
-    payload = await request.json()
+    try:
+        payload = await request.json()
+        print("✅ Received payload:", payload)
+    except Exception as e:
+        print("❌ JSON parsing error:", e)
+        return {"status": "invalid JSON", "error": str(e)}
+    
     op = payload.get("operation")
-    col = db[payload.get("collection")]
+    collection = payload.get("collection")
+    data = payload.get("data")
+
+    print(f"Operation: {op}, Collection: {collection}, Data: {data}")
 
     if op == "create":
-        result = col.insert_one(payload.get("data"))
+        result = db[collection].insert_one(data)
         return {"status": "ok", "inserted_id": str(result.inserted_id)}
-    
+
     return {"status": "unsupported operation"}
