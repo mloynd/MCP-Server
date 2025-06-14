@@ -6,6 +6,10 @@ app = FastAPI()
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["MSE1"]
 
+@app.get("/")
+async def root():
+    return {"status": "MCP server is live"}
+
 @app.post("/mcp")
 async def handle_mcp(request: Request):
     payload = await request.json()
