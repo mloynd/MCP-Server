@@ -1,6 +1,3 @@
-# handler.py
-
-import uuid
 from datetime import datetime
 
 def handle_crud(payload, db):
@@ -28,10 +25,6 @@ def handle_crud(payload, db):
 
     else:
         return {"error": "unsupported crud command"}
-
-def handle_log(payload, db):
-    db["conversation_logs"].insert_one(payload)
-    return {"status": "logged"}
 
 def handle_schema_memory(payload, db):
     schemas = db["schemas"]
@@ -74,8 +67,9 @@ def handle_schema_memory(payload, db):
         missing = [field["name"] for field in schema["fields"] if field.get("required") and field["name"] not in data]
         if missing:
             return {"error": "missing required fields", "fields": missing}
+        import uuid
         instance_id = str(uuid.uuid4())
-        instances.insert_one({
+        db["instances"].insert_one({
             "instance_id": instance_id,
             "schema_id": payload["schema_id"],
             "data": data,
@@ -86,14 +80,14 @@ def handle_schema_memory(payload, db):
         return {"status": "instance_created", "instance_id": instance_id}
 
     elif command == "update_instance":
-        result = instances.update_one(
+        result = db["instances"].update_one(
             {"instance_id": payload["instance_id"], "deleted": False},
             {"$set": payload.get("data", {})}
         )
         return {"status": "instance_updated", "matched": result.matched_count}
 
     elif command == "delete_instance":
-        result = instances.update_one(
+        result = db["instances"].update_one(
             {"instance_id": payload["instance_id"]},
             {"$set": {"deleted": True}}
         )
@@ -107,14 +101,18 @@ def handle_schema_memory(payload, db):
         return schema if schema else {"error": "schema not found"}
 
     elif command == "list_instances":
-        return list(instances.find({"schema_id": payload.get("schema_id"), "deleted": False}, {"_id": 0}))
+        return list(db["instances"].find({"schema_id": payload.get("schema_id"), "deleted": False}, {"_id": 0}))
 
     elif command == "get_instance":
-        instance = instances.find_one({"instance_id": payload.get("instance_id"), "deleted": False}, {"_id": 0})
+        instance = db["instances"].find_one({"instance_id": payload.get("instance_id"), "deleted": False}, {"_id": 0})
         return instance if instance else {"error": "instance not found"}
 
     else:
         return {"error": "unsupported schema_memory command"}
+
+def handle_log(payload, db):
+    db["conversation_logs"].insert_one(payload)
+    return {"status": "logged"}
 
 def query_schemas(filter, schemas):
     query = {"deleted": False}

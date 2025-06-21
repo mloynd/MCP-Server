@@ -1,11 +1,10 @@
 from fastapi import FastAPI, Request
 from pymongo import MongoClient
-from handler import handle_crud, handle_schema_memory, query_schemas
+from handler import handle_crud, handle_schema_memory, query_schemas, handle_log
 import os
 
 app = FastAPI()
 
-# Connect to MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["MSE"]
 schemas = db["schemas"]
