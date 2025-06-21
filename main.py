@@ -1,11 +1,11 @@
-# main.py
-
 from fastapi import FastAPI, Request
 from pymongo import MongoClient
 from handler import handle_crud, handle_schema_memory, query_schemas
 import os
 
 app = FastAPI()
+
+# Connect to MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client["MSE"]
 schemas = db["schemas"]
@@ -14,6 +14,13 @@ schemas = db["schemas"]
 async def mcp_entry(request: Request):
     payload = await request.json()
     operation = payload.get("operation")
+
+    # Operation inference if not provided
+    if not operation:
+        if "command" in payload and "collection" in payload:
+            operation = "schema_memory"
+        elif "action" in payload and "target" in payload:
+            operation = "crud"
 
     if operation == "crud":
         return handle_crud(payload, db)
