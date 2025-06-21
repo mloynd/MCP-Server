@@ -7,8 +7,8 @@ app = FastAPI()
 
 # Connect to MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
-db = client["MSE1"]
-schemas = db["Dogs"]
+db = client["MSE"]
+schemas = db["schemas"]
 
 @app.post("/mcp")
 async def mcp_entry(request: Request):
