@@ -28,6 +28,8 @@ async def mcp_entry(request: Request):
         return handle_crud(payload, db)
     elif operation == "schema_memory":
         return handle_schema_memory(payload, db)
+    elif operation == "log_conversation":
+        return handle_log(payload, db)
 
     return {"error": "unsupported operation"}
 
