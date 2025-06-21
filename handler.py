@@ -29,6 +29,10 @@ def handle_crud(payload, db):
     else:
         return {"error": "unsupported crud command"}
 
+def handle_log(payload, db):
+    db["conversation_logs"].insert_one(payload)
+    return {"status": "logged"}
+
 def handle_schema_memory(payload, db):
     schemas = db["schemas"]
     instances = db["instances"]
