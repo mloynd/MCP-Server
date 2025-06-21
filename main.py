@@ -18,9 +18,11 @@ async def mcp_entry(request: Request):
     # Operation inference if not provided
     if not operation:
         if "command" in payload and "collection" in payload:
-            operation = "schema_memory"
+            operation = "crud"
         elif "action" in payload and "target" in payload:
             operation = "crud"
+        elif "command" in payload and "schema_id" in payload:
+            operation = "schema_memory"
 
     if operation == "crud":
         return handle_crud(payload, db)
